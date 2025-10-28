@@ -1,12 +1,35 @@
 import pandas as pd 
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, LabelEncoder
 from tensorflow.keras.models import Sequential
 from tensorflow.keras. layers import Dense
 from tensorflow.keras.callbacks import EarlyStopping
-from tensorflow.keras.models import load models
+from tensorflow.keras.models import load_model
 
-df=pd.read_csv(/workspaces/customer-churn-dl-project/data/bank_churn_data - bank_churn_data.csv)
-x=df.drop(['customerId','surname','Exited'],axis=1)
+df=pd.read_csv('/workspaces/customer-churn-dl-project/data/bank_churn_data - bank_churn_data.csv')
+X=df.drop(['CustomerId','Surname','Exited'],axis=1)
 y=df['Exited']
+
+X['Geography'] = LabelEncoder().fit_transform(X['Geography'])
+X['Gender'] = LabelEncoder().fit_transform(X['Gender'])
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+#tranform of the data 
+#transform of the data
+scaler = StandardScaler()
+X_Scaled = scaler.fit_transform(X_train)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+model = Sequential([
+    Dense(16,activation='relu',input_shape=(X_train.shape[1],)),
+    Dense(8,activation='relu'),
+    Dense(1,activation='sigmoid')
+])
+
+model.compile(optimizer= 'adam', loss= 'binary_crossentropy', metrics=['accuracy'])
+model.fit(X_train, y_train, epochs = 30, batch_size=13, validation_split = 0.2, verbose = 1)
+
+model.save('models/churn_model.h5')
+
+pd.to_pickle(scaler,'models/scaler.pkl')
